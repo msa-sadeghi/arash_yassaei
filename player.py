@@ -14,23 +14,51 @@ class Player:
             self.all_images[animation] = img_list
         self.current_animation = "Idle"
         self.image = self.all_images[self.current_animation][0]
- 
+        self.mask = pygame.mask.from_surface(self.image)
         self.speed = speed
         self.rect = self.image.get_rect(topleft=(x,y))
+        
         self.frame_index = 0
         self.animated_time = 0
+        self.direction = 1
+        self.yspeed = 0
 
     def draw(self, screen):
-        screen.blit(self.image, self.rect)
+        img = pygame.transform.flip(self.image,  self.direction == -1, False)
+        screen.blit(img, self.rect)
         self.animation()
+        pygame.draw.lines(self.image, "red",True, self.mask.outline())
+        
+        
 
     def move(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and self.rect.left > 0:
+            self.change_animation("Walk")
+            self.direction = -1
             self.rect.x -= self.speed
         if keys[pygame.K_RIGHT] and self.rect.right < 1000:
+            self.change_animation("Walk")
+            self.direction = 1
             self.rect.x += self.speed
+        if not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
+            self.change_animation("Idle")
 
+    
+    def jump(self):
+        dy = 0
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_SPACE]:
+            self.yspeed = -12
+        dy += self.yspeed
+        self.yspeed += 1
+        if self.rect.bottom + dy >= 640:
+            self.yspeed = 0
+            dy = 0
+      
+        self.rect.y += dy
+    
     def animation(self):
         if pygame.time.get_ticks() - self.animated_time >= 100:
             self.animated_time = pygame.time.get_ticks()
@@ -38,3 +66,9 @@ class Player:
         if self.frame_index >= len(self.all_images):
             self.frame_index = 0
         self.image =  self.all_images[self.current_animation][self.frame_index]
+
+    def change_animation(self, new_animation):
+        if new_animation != self.current_animation:
+            self.current_animation = new_animation
+            self.frame_index = 0
+            self.animated_time = pygame.time.get_ticks()

@@ -35,4 +35,5 @@ while running:
     # coin1.move()
     player1.draw(screen)
     player1.move()
+    player1.jump()
     pygame.display.update()
