@@ -10,8 +10,11 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 player1 = Player(100, 100, 10)
 coin_image = pygame.image.load("coin.png")
 
-coin1 = Coin(coin_image, 0, 50, 5)
 
+coin_group = pygame.sprite.Group()
+coin1 = Coin(coin_image, 450, 480, 5, "move_x")
+coin2 = Coin(coin_image, 750, 280, 5, "move_y")
+coin_group.add(coin1,coin2)
 clicked = False
 FPS = 60
 CLOCK = pygame.time.Clock()
@@ -28,12 +31,14 @@ while running:
             circle_color = "blue"
         else:
             circle_color = "red"
-
-    
     screen.fill("lightblue")
-    # coin1.draw(screen)
-    # coin1.move()
+    
+    coin2.draw(screen)
+    coin2.move()
     player1.draw(screen)
     player1.move()
     player1.jump()
+    if not player1.rect.colliderect(coin1.rect):
+        coin1.draw(screen)
+        coin1.move()
     pygame.display.update()

@@ -1,17 +1,28 @@
 import pygame
 import random
-class Coin:
-    def __init__(self, image, x, y, speed):
+from pygame.sprite import Sprite
+class Coin(Sprite):
+    def __init__(self, image, x, y, speed, type):
+        super().__init__()
         self.image = pygame.transform.scale_by(image, 0.3)
         self.speed = speed
         self.rect = self.image.get_rect(topleft=(x,y))
+        self.type = type
+        self.counter = 50
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
 
     def move(self):
-        if self.rect.bottom >= 1000:
-            random_x = random.randint(50, 950)
-            self.rect = self.image.get_rect(topleft=(random_x,0))
-
-        self.rect.y += self.speed
+        if self.type == "move_x":
+            self.counter -= 1
+            self.rect.x += self.speed
+            if self.counter == 0:
+                self.speed *= -1
+                self.counter = 50
+        elif self.type == "move_y":
+            self.counter -= 1
+            self.rect.y += self.speed
+            if self.counter == 0:
+                self.speed *= -1
+                self.counter = 50
