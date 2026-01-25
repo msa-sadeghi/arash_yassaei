@@ -22,14 +22,13 @@ class Player:
         self.animated_time = 0
         self.direction = 1
         self.yspeed = 0
+        self.is_grounded = True
 
     def draw(self, screen):
         img = pygame.transform.flip(self.image,  self.direction == -1, False)
         screen.blit(img, self.rect)
         self.animation()
         pygame.draw.lines(self.image, "red",True, self.mask.outline())
-        
-        
 
     def move(self):
         keys = pygame.key.get_pressed()
@@ -44,18 +43,19 @@ class Player:
         if not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
             self.change_animation("Idle")
 
-    
     def jump(self):
         dy = 0
         keys = pygame.key.get_pressed()
         
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_SPACE] and self.is_grounded:
             self.yspeed = -12
+            self.is_grounded = False
         dy += self.yspeed
         self.yspeed += 1
         if self.rect.bottom + dy >= 640:
             self.yspeed = 0
             dy = 0
+            self.is_grounded = True
       
         self.rect.y += dy
     
