@@ -19,6 +19,10 @@ clicked = False
 FPS = 60
 CLOCK = pygame.time.Clock()
 
+score = 0
+myfont = pygame.font.Font("f.otf", 24)
+score_text = myfont.render(f"Score: {score}", True, "darkblue")
+
 circle_color = "red"
 running = True
 while running:
@@ -31,14 +35,16 @@ while running:
             circle_color = "blue"
         else:
             circle_color = "red"
+    score_text = myfont.render(f"Score: {score}", True, "darkblue")
     screen.fill("lightblue")
+    screen.blit(score_text, (20, 20))
+    coin_group.draw(screen)
+    coin1.move()
     
-    coin2.draw(screen)
     coin2.move()
     player1.draw(screen)
     player1.move()
     player1.jump()
-    if not player1.rect.colliderect(coin1.rect):
-        coin1.draw(screen)
-        coin1.move()
+    for coin in coin_group.sprites():
+        score = coin.check_collision(player1, score)
     pygame.display.update()
