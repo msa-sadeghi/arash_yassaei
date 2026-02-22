@@ -1,5 +1,5 @@
 import pygame
-from player import Player
+from old.player import Player
 from coin  import Coin
 from ground import Ground
 pygame.init()
