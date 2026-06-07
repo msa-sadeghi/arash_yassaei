@@ -1,25 +1,17 @@
 import tkinter as tk
+from tkinter import ttk
 
 window = tk.Tk()
-window.iconbitmap("icon.ico")
-window.title("Task Manager")
-window.resizable(False, False)
-window.config(bg="#1e1e1e")
-x = window.winfo_screenwidth() // 2 - 400
-y = window.winfo_screenheight() // 2 - 250
 
-window.geometry(f"800x500+{x}+{y}")
+x = window.winfo_screenwidth() // 2 - 200
+y = window.winfo_screenheight() // 2 - 150
 
+window.geometry(f"400x300+{x}+{y}")
+main_frame = ttk.Frame(window)
 
-label = tk.Label(window, text="hello", font=("Arial", 24, "bold"), fg="red", bg="white")
-label.pack(pady=10, ipadx=10, ipady=10)
-label = tk.Label(window, text="hello", font=("Arial", 24, "bold"), fg="red", bg="#b44242")
-label.pack(pady=30)
+main_frame.pack(fill="both", expand=True)
 
-username = tk.Entry(window, font=("Arial", 24, "bold"), 
-                    width=30, bg="#2b2b2b", fg="white", bd=0,
-                    insertbackground="white"
-                    )
-username.pack()
-
+style = ttk.Style(master=main_frame)
+style.configure("TFrame", background="#f4f6f9")
+style.configure(".", font=("arial", 22))
 tk.mainloop()
