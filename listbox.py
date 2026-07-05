@@ -11,7 +11,10 @@ def on_select(e):
         index = selection[0]
         item = listbox.get(index)
         output_var.set(item)
-
+def on_delete(e):
+    selection = listbox.curselection()
+    if selection:
+        listbox.delete(selection[0])
 root = ctk.CTk()
 output_var = tk.StringVar()
 output = tk.Label(root, textvariable=output_var)
@@ -43,4 +46,5 @@ for i in range(1, 21):
 
 listbox.see(tk.END)
 listbox.bind("<<ListboxSelect>>", on_select)
+listbox.bind("<Delete>", on_delete)
 root.mainloop()
