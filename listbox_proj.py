@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import json
 
 
 class TodoApp:
@@ -11,18 +12,18 @@ class TodoApp:
 
     # ── رنگ‌های برنامه (پالت ثابت) ─────────────────────────
     COLORS = {
-        "bg_header":    "#2c3e50",
-        "bg_body":      "#f5f6fa",
-        "bg_footer":    "#dfe6e9",
-        "accent":       "#3498db",
+        "bg_header": "#2c3e50",
+        "bg_body": "#f5f6fa",
+        "bg_footer": "#dfe6e9",
+        "accent": "#3498db",
         "accent_hover": "#2980b9",
-        "danger":       "#e74c3c",
+        "danger": "#e74c3c",
         "danger_hover": "#c0392b",
-        "success":      "#27ae60",
-        "done_fg":      "#95a5a6",
-        "text_main":    "#2c3e50",
-        "text_light":   "#7f8c8d",
-        "white":        "#ffffff",
+        "success": "#27ae60",
+        "done_fg": "#95a5a6",
+        "text_main": "#2c3e50",
+        "text_light": "#7f8c8d",
+        "white": "#ffffff",
     }
 
     def __init__(self, root):
@@ -61,16 +62,12 @@ class TodoApp:
             text="📝  لیست کارهای من",
             bg=self.COLORS["bg_header"],
             fg=self.COLORS["white"],
-            font=("Tahoma", 17, "bold")
+            font=("Tahoma", 17, "bold"),
         ).place(relx=0.5, rely=0.5, anchor="center")
 
     def _build_input_area(self):
         """ناحیه‌ی ورودی: Entry + دکمه افزودن"""
-        input_frame = tk.Frame(
-            self.root,
-            bg=self.COLORS["bg_body"],
-            padx=15, pady=12
-        )
+        input_frame = tk.Frame(self.root, bg=self.COLORS["bg_body"], padx=15, pady=12)
         input_frame.pack(fill="x")
 
         # Entry
@@ -83,7 +80,7 @@ class TodoApp:
             bd=1,
             highlightthickness=2,
             highlightcolor=self.COLORS["accent"],
-            highlightbackground="#dfe6e9"
+            highlightbackground="#dfe6e9",
         )
         self.task_entry.pack(side="left", fill="x", expand=True, ipady=6)
         self.task_entry.focus()
@@ -99,7 +96,7 @@ class TodoApp:
             cursor="hand2",
             activebackground=self.COLORS["accent_hover"],
             activeforeground=self.COLORS["white"],
-            command=self.add_task
+            command=self.add_task,
         )
         self.add_btn.pack(side="left", padx=(8, 0), ipady=6)
 
@@ -108,21 +105,13 @@ class TodoApp:
         self.add_btn.bind("<Leave>", lambda e: self.add_btn.config(bg=self.COLORS["accent"]))
 
     def _build_list_area(self):
+        self.load_tasks()
         """ناحیه‌ی لیست: Listbox + Scrollbar"""
-        list_container = tk.Frame(
-            self.root,
-            bg=self.COLORS["bg_body"],
-            padx=15
-        )
+        list_container = tk.Frame(self.root, bg=self.COLORS["bg_body"], padx=15)
         list_container.pack(fill="both", expand=True)
 
         # Frame داخلی برای Listbox و Scrollbar
-        inner = tk.Frame(
-            list_container,
-            bg=self.COLORS["white"],
-            highlightthickness=1,
-            highlightbackground="#dfe6e9"
-        )
+        inner = tk.Frame(list_container, bg=self.COLORS["white"], highlightthickness=1, highlightbackground="#dfe6e9")
         inner.pack(fill="both", expand=True)
 
         scrollbar = tk.Scrollbar(inner, cursor="arrow")
@@ -141,10 +130,12 @@ class TodoApp:
             highlightthickness=0,
             yscrollcommand=scrollbar.set,
             selectmode="single",
-            cursor="hand2"
+            cursor="hand2",
         )
         self.listbox.pack(side="left", fill="both", expand=True, padx=5, pady=5)
         scrollbar.config(command=self.listbox.yview)
+        for task in self.tasks:
+            self.listbox.insert(tk.END, task["text"])
 
     def _build_action_buttons(self):
         """ردیف دکمه‌های عملیاتی"""
@@ -153,8 +144,8 @@ class TodoApp:
 
         buttons = [
             ("✓  انجام شد", self.COLORS["success"], self.COLORS["success"], self.mark_done),
-            ("✎  ویرایش",   self.COLORS["accent"],  self.COLORS["accent"],  self.edit_task),
-            ("✕  حذف",      self.COLORS["danger"],  self.COLORS["danger"],  self.delete_task),
+            ("✎  ویرایش", self.COLORS["accent"], self.COLORS["accent"], self.edit_task),
+            ("✕  حذف", self.COLORS["danger"], self.COLORS["danger"], self.delete_task),
             ("⊘  پاک کردن همه", "#636e72", "#636e72", self.clear_all),
         ]
 
@@ -169,8 +160,9 @@ class TodoApp:
                 cursor="hand2",
                 activeforeground="white",
                 activebackground=hover,
-                padx=8, pady=4,
-                command=cmd
+                padx=8,
+                pady=4,
+                command=cmd,
             )
             btn.pack(side="left", padx=3)
 
@@ -186,11 +178,7 @@ class TodoApp:
         footer.pack_propagate(False)
 
         self.status_label = tk.Label(
-            footer,
-            text="",
-            bg=self.COLORS["bg_footer"],
-            fg=self.COLORS["text_light"],
-            font=("Tahoma", 9)
+            footer, text="", bg=self.COLORS["bg_footer"], fg=self.COLORS["text_light"], font=("Tahoma", 9)
         )
         self.status_label.place(relx=0.5, rely=0.5, anchor="center")
 
@@ -221,6 +209,9 @@ class TodoApp:
     # ════════════════════════════════════════════════════════
     # منطق برنامه (Business Logic)
     # ════════════════════════════════════════════════════════
+    def load_tasks(self):
+        with open("tasks.json", "r", encoding="utf-8") as f:
+            self.tasks = json.load(f)
 
     def add_task(self):
         """افزودن کار جدید"""
@@ -255,6 +246,9 @@ class TodoApp:
         self._set_status(f"  «{text}» اضافه شد", "success")
         self._update_status()
 
+        with open("tasks.json", "w", encoding="utf-8") as f:
+            json.dump(self.tasks, f, ensure_ascii=False, indent=4)
+
     def delete_task(self):
         """حذف کار انتخاب‌شده"""
         selection = self.listbox.curselection()
@@ -266,10 +260,7 @@ class TodoApp:
         task_text = self.tasks[index]["text"]
 
         # تأییدیه برای حذف
-        confirm = messagebox.askyesno(
-            "حذف کار",
-            f"آیا مطمئنی که می‌خواهی «{task_text}» را حذف کنی؟"
-        )
+        confirm = messagebox.askyesno("حذف کار", f"آیا مطمئنی که می‌خواهی «{task_text}» را حذف کنی؟")
         if not confirm:
             return
 
@@ -297,17 +288,13 @@ class TodoApp:
             # نمایش به‌صورت انجام‌شده
             self.listbox.delete(index)
             self.listbox.insert(index, f"  ✓  {task['text']}")
-            self.listbox.itemconfig(index,
-                                    fg=self.COLORS["done_fg"],
-                                    selectforeground=self.COLORS["done_fg"])
+            self.listbox.itemconfig(index, fg=self.COLORS["done_fg"], selectforeground=self.COLORS["done_fg"])
             self._set_status(f"  «{task['text']}» انجام شد!", "success")
         else:
             # برگشت به حالت عادی
             self.listbox.delete(index)
             self.listbox.insert(index, f"  ○  {task['text']}")
-            self.listbox.itemconfig(index,
-                                    fg=self.COLORS["text_main"],
-                                    selectforeground=self.COLORS["white"])
+            self.listbox.itemconfig(index, fg=self.COLORS["text_main"], selectforeground=self.COLORS["white"])
             self._set_status(f"↩️  «{task['text']}» به لیست برگشت", "info")
 
         # حفظ انتخاب
@@ -337,14 +324,11 @@ class TodoApp:
         popup.title("ویرایش کار")
         popup.geometry("350x140")
         popup.resizable(False, False)
-        popup.transient(self.root)   # وابسته به پنجره‌ی اصلی
-        popup.grab_set()             # فوکوس قفل شود روی popup
+        popup.transient(self.root)  # وابسته به پنجره‌ی اصلی
+        popup.grab_set()  # فوکوس قفل شود روی popup
 
         # وسط صفحه
-        popup.geometry("+%d+%d" % (
-            self.root.winfo_x() + 55,
-            self.root.winfo_y() + 190
-        ))
+        popup.geometry("+%d+%d" % (self.root.winfo_x() + 55, self.root.winfo_y() + 190))
 
         tk.Label(popup, text="متن جدید:", font=("Tahoma", 11)).pack(pady=(15, 5))
 
@@ -376,15 +360,20 @@ class TodoApp:
         btn_frame = tk.Frame(popup)
         btn_frame.pack(pady=10)
 
-        tk.Button(btn_frame, text="ذخیره",
-                  bg=self.COLORS["success"], fg="white",
-                  relief="flat", padx=12, pady=4,
-                  command=save_edit).pack(side="left", padx=5)
+        tk.Button(
+            btn_frame,
+            text="ذخیره",
+            bg=self.COLORS["success"],
+            fg="white",
+            relief="flat",
+            padx=12,
+            pady=4,
+            command=save_edit,
+        ).pack(side="left", padx=5)
 
-        tk.Button(btn_frame, text="انصراف",
-                  bg="#636e72", fg="white",
-                  relief="flat", padx=12, pady=4,
-                  command=popup.destroy).pack(side="left", padx=5)
+        tk.Button(
+            btn_frame, text="انصراف", bg="#636e72", fg="white", relief="flat", padx=12, pady=4, command=popup.destroy
+        ).pack(side="left", padx=5)
 
         # Enter برای ذخیره، Escape برای لغو
         edit_entry.bind("<Return>", lambda e: save_edit())
@@ -398,8 +387,7 @@ class TodoApp:
 
         count = len(self.tasks)
         confirm = messagebox.askyesno(
-            "پاک کردن همه",
-            f"آیا مطمئنی که می‌خواهی {count} کار را پاک کنی؟\nاین عملیات قابل بازگشت نیست."
+            "پاک کردن همه", f"آیا مطمئنی که می‌خواهی {count} کار را پاک کنی؟\nاین عملیات قابل بازگشت نیست."
         )
         if not confirm:
             return
@@ -455,7 +443,7 @@ class TodoApp:
         colors = {
             "success": self.COLORS["success"],
             "warning": "#e67e22",
-            "info":    self.COLORS["text_light"],
+            "info": self.COLORS["text_light"],
         }
         self.status_label.config(text=msg, fg=colors.get(kind, self.COLORS["text_light"]))
 
