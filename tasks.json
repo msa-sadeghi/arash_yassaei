@@ -1,10 +1,7 @@
 [
-    {
-        "text": "خريد پيتزا",
-        "done": false
-    },
-    {
-        "text": "مطالعه رياضي",
-        "done": false
-    }
+  {
+    "text": "task #  1",
+    "done": false,
+    "priority": "high"
+  }
 ]
